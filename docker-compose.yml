@@ -1,0 +1,36 @@
+version: '3'
+services:
+  prometheus:
+    image: prom/prometheus:v2.21.0
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus:/etc/prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+    networks:
+      - prometheus_network
+    expose:
+      - "9090"
+  grafana:
+    image: grafana/grafana:7.3.0
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    environment:
+      GF_INSTALL_PLUGINS: "grafana-piechart-panel,grafana-clock-panel"
+      GF_SECURITY_ADMIN_PASSWORD: "admin"
+    networks:
+      - prometheus_network
+    expose:
+      - "3000"
+volumes:
+  grafana_data:
+    driver: local
+networks:
+  prometheus_network:
+    driver: bridge
